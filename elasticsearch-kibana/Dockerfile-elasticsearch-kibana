@@ -1,0 +1,43 @@
+FROM ubuntu:18.04
+
+
+RUN echo 'vm.max_map_count=262144' >> /etc/sysctl.conf
+
+RUN apt-get update ; apt-get install --fix-missing -y curl openjdk-8-jdk
+
+RUN groupadd -g 1000 elasticsearch \
+    && useradd elasticsearch -u 1000 -g 1000 \
+    ; groupadd -g 1001 kibana \
+    && useradd kibana -u 1001 -g 1001
+
+ENV JAVA_HOME=/usr/bin
+
+RUN echo 'export JAVA_HOME=/usr/bin' >> /etc/profile
+
+RUN curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.10.deb \
+    ; dpkg -i elasticsearch-6.8.10.deb
+
+RUN curl -L -O https://artifacts.elastic.co/downloads/kibana/kibana-6.8.10-linux-x86_64.tar.gz \
+    ; tar xzvf kibana-6.8.10-linux-x86_64.tar.gz
+
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-6.8.10-amd64.deb \
+    ; dpkg -i metricbeat-6.8.10-amd64.deb
+
+COPY elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+
+COPY kibana.yml kibana-6.8.10-linux-x86_64/config/kibana.yml
+
+COPY startup.sh .
+
+RUN chmod u+x startup.sh
+
+RUN chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.yml
+
+RUN chown -R kibana:kibana kibana-6.8.10-linux-x86_64
+
+CMD ["./startup.sh"]
+
+EXPOSE 9200
+EXPOSE 5601
+
+
