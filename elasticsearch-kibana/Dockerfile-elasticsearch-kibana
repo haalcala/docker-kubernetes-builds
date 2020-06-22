@@ -23,7 +23,11 @@ RUN curl -L -O https://artifacts.elastic.co/downloads/kibana/kibana-6.8.10-linux
 RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-6.8.10-amd64.deb \
     ; dpkg -i metricbeat-6.8.10-amd64.deb
 
+RUN metricbeat modules enable system
+
 COPY elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+
+COPY metricbeat.yml /etc/metricbeat/metricbeat.yml
 
 COPY kibana.yml kibana-6.8.10-linux-x86_64/config/kibana.yml
 
@@ -39,5 +43,3 @@ CMD ["./startup.sh"]
 
 EXPOSE 9200
 EXPOSE 5601
-
-

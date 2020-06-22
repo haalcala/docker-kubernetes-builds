@@ -1,6 +1,9 @@
 #!/bin/bash
 
-service elasticsearch restart
+metricbeat setup --dashboards
+
+service metricbeat start
+service elasticsearch start
 
 sleep 10
 
